@@ -4,12 +4,9 @@ services:
     image: mongo
     restart: always
     command: ["--bind_ip_all"]
-    environment:
-      MONGO_INITDB_DATABASE: admin
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
-    #volumes:
-    # - ./startup:/docker-entrypoint-initdb.d:ro
+    env_file:
+      - ./.mongo.env  
+    volumes:
+     - ./database_startup:/docker-entrypoint-initdb.d:ro
     ports:
       - '27017-27019:27017-27019'
-
