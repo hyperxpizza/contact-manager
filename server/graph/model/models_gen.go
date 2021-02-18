@@ -2,6 +2,22 @@
 
 package model
 
+import (
+	"time"
+)
+
 type AuthPayload struct {
 	Token string `json:"token"`
+}
+
+type Contact struct {
+	ID        *string   `json:"ID"`
+	Name1     string    `json:"name1"`
+	Name2     *string   `json:"name2"`
+	Surname   *string   `json:"surname"`
+	Email     *string   `json:"email"`
+	Phone     *string   `json:"phone"`
+	Website   *string   `json:"website"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
