@@ -11,13 +11,14 @@ type AuthPayload struct {
 }
 
 type Contact struct {
-	ID        *string   `json:"ID"`
+	ObjectID  *string   `json:"ObjectID"`
 	Name1     string    `json:"name1"`
 	Name2     *string   `json:"name2"`
 	Surname   *string   `json:"surname"`
 	Email     *string   `json:"email"`
 	Phone     *string   `json:"phone"`
 	Website   *string   `json:"website"`
+	Company   *string   `json:"company"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }

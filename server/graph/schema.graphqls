@@ -2,26 +2,38 @@ scalar Timestamp
 
 type AuthPayload{
   token: String!
+  user: User!
 }
 
 type Contact {
-  ID: String
+  ObjectID: ID
   name1: String!
   name2: String
   surname: String
   email: String
   phone: String
   website: String
+  company: String
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+}
+
+type User {
+  username: String!
+  password: String!
+  email: String!
+  isAdmin: Boolean!
   createdAt: Timestamp!
   updatedAt: Timestamp!
 }
 
 type Mutation {
   login(username: String!, password: String!): AuthPayload
-  createContact(Name1: String!, Name2: String, Surname: String, Email: String, Phone: String, Website: String): Contact
+  createContact(name1: String!, name2: String, surname: String, email: String, phone: String, website: String): Contact
 }
 
 type Query {
-  getAllContacts: [Contact]
+  getContact(): Contact
+  getContacts(filter: Contact): [Contact]
 }
 

@@ -49,11 +49,12 @@ type ComplexityRoot struct {
 	}
 
 	Contact struct {
+		Company   func(childComplexity int) int
 		CreatedAt func(childComplexity int) int
 		Email     func(childComplexity int) int
-		ID        func(childComplexity int) int
 		Name1     func(childComplexity int) int
 		Name2     func(childComplexity int) int
+		ObjectID  func(childComplexity int) int
 		Phone     func(childComplexity int) int
 		Surname   func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
@@ -100,6 +101,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuthPayload.Token(childComplexity), true
 
+	case "Contact.company":
+		if e.complexity.Contact.Company == nil {
+			break
+		}
+
+		return e.complexity.Contact.Company(childComplexity), true
+
 	case "Contact.createdAt":
 		if e.complexity.Contact.CreatedAt == nil {
 			break
@@ -114,13 +122,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Contact.Email(childComplexity), true
 
-	case "Contact.ID":
-		if e.complexity.Contact.ID == nil {
-			break
-		}
-
-		return e.complexity.Contact.ID(childComplexity), true
-
 	case "Contact.name1":
 		if e.complexity.Contact.Name1 == nil {
 			break
@@ -134,6 +135,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Contact.Name2(childComplexity), true
+
+	case "Contact.ObjectID":
+		if e.complexity.Contact.ObjectID == nil {
+			break
+		}
+
+		return e.complexity.Contact.ObjectID(childComplexity), true
 
 	case "Contact.phone":
 		if e.complexity.Contact.Phone == nil {
@@ -265,13 +273,14 @@ type AuthPayload{
 }
 
 type Contact {
-  ID: String
+  ObjectID: ID
   name1: String!
   name2: String
   surname: String
   email: String
   phone: String
   website: String
+  company: String
   createdAt: Timestamp!
   updatedAt: Timestamp!
 }
@@ -465,7 +474,7 @@ func (ec *executionContext) _AuthPayload_token(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Contact_ID(ctx context.Context, field graphql.CollectedField, obj *model.Contact) (ret graphql.Marshaler) {
+func (ec *executionContext) _Contact_ObjectID(ctx context.Context, field graphql.CollectedField, obj *model.Contact) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -483,7 +492,7 @@ func (ec *executionContext) _Contact_ID(ctx context.Context, field graphql.Colle
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return obj.ObjectID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -494,7 +503,7 @@ func (ec *executionContext) _Contact_ID(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Contact_name1(ctx context.Context, field graphql.CollectedField, obj *model.Contact) (ret graphql.Marshaler) {
@@ -679,6 +688,38 @@ func (ec *executionContext) _Contact_website(ctx context.Context, field graphql.
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Website, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Contact_company(ctx context.Context, field graphql.CollectedField, obj *model.Contact) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Contact",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Company, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2076,8 +2117,8 @@ func (ec *executionContext) _Contact(ctx context.Context, sel ast.SelectionSet, 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Contact")
-		case "ID":
-			out.Values[i] = ec._Contact_ID(ctx, field, obj)
+		case "ObjectID":
+			out.Values[i] = ec._Contact_ObjectID(ctx, field, obj)
 		case "name1":
 			out.Values[i] = ec._Contact_name1(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -2093,6 +2134,8 @@ func (ec *executionContext) _Contact(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = ec._Contact_phone(ctx, field, obj)
 		case "website":
 			out.Values[i] = ec._Contact_website(ctx, field, obj)
+		case "company":
+			out.Values[i] = ec._Contact_company(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._Contact_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -2780,6 +2823,21 @@ func (ec *executionContext) marshalOContact2ᚖgithubᚗcomᚋhyperxpizzaᚋcont
 		return graphql.Null
 	}
 	return ec._Contact(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalID(*v)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
