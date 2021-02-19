@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	model "github.com/hyperxpizza/contact-manager/server/graph/model"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -49,4 +50,26 @@ func ConnectToDB(username, password, authSource, host string, port int) {
 	cancelFunc = cancel
 
 	fmt.Println("Connected to MongoDB!")
+}
+
+func InsertContact(contact model.Contact) (string, error) {
+	res, err := database.Collection("contacts").InsertOne(mongoCtx, &contact)
+	if err != nil {
+		log.Printf("Error while InsertContract: %v", err)
+		return "", err
+	}
+
+	id := fmt.Sprintf("%v", res.InsertedID)
+
+	return id, nil
+}
+
+func GetContact(filter *model.Filter) (*model.Contact, error) {
+	var contact model.Contact
+	err := database.Collection("contacts").FindOne(mongoCtx, filter).Decode(&contact)
+	if err != nil {
+		return nil, err
+	}
+
+	return &contact, nil
 }

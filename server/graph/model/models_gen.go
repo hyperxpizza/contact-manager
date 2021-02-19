@@ -8,17 +8,41 @@ import (
 
 type AuthPayload struct {
 	Token string `json:"token"`
+	User  *User  `json:"user"`
 }
 
 type Contact struct {
-	ObjectID  *string   `json:"ObjectID"`
-	Name1     string    `json:"name1"`
-	Name2     *string   `json:"name2"`
-	Surname   *string   `json:"surname"`
-	Email     *string   `json:"email"`
-	Phone     *string   `json:"phone"`
-	Website   *string   `json:"website"`
-	Company   *string   `json:"company"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ObjectID  *string   `json:"ObjectID" bson:"_id,omitempty"`
+	Name1     string    `json:"name1" bson:"name1,omitempty"`
+	Name2     *string   `json:"name2" bson:"name2,omitempty"`
+	Surname   *string   `json:"surname" bson:"surname,omitempty"`
+	Email     *string   `json:"email" bson:"email,omitempty"`
+	Phone     *string   `json:"phone" bson:"phone,omitempty"`
+	Website   *string   `json:"website" bson:"website,omitempty"`
+	Company   *string   `json:"company" bson:"company,omitempty"`
+	CreatedAt time.Time `json:"createdAt" bson:"createdat,omitempty"`
+	UpdatedAt time.Time `json:"updatedAt" bson:"updatedat,omitempty"`
+}
+
+type Filter struct {
+	ObjectID  *string    `json:"ObjectID" bson:"_id,omitempty"`
+	Name1     *string    `json:"name1" bson:"name1,omitempty"`
+	Name2     *string    `json:"name2" bson:"name2,omitempty"`
+	Surname   *string    `json:"surname" bson:"surname,omitempty"`
+	Email     *string    `json:"email" bson:"email,omitempty"`
+	Phone     *string    `json:"phone" bson:"phone,omitempty"`
+	Website   *string    `json:"website" bson:"website,omitempty"`
+	Company   *string    `json:"company" bson:"company,omitempty"`
+	CreatedAt *time.Time `json:"createdAt" bson:"createdat,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt" bson:"updatedat,omitempty"`
+}
+
+type User struct {
+	ObjectID  *string   `json:"ObjectID" bson:"_id,omitempty"`
+	Username  string    `json:"username" bson:"username,omitempty"`
+	Password  string    `json:"password" bson:"password,omitempty"`
+	Email     string    `json:"email" bson:"email,omitempty"`
+	IsAdmin   bool      `json:"isAdmin" bson:"isAdmin,omitempty"`
+	CreatedAt time.Time `json:"createdAt" bson:"createdat,omitempty"`
+	UpdatedAt time.Time `json:"updatedAt" bson:"updatedat,omitempty"`
 }

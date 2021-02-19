@@ -18,7 +18,21 @@ type Contact {
   updatedAt: Timestamp!
 }
 
+input Filter{
+  ObjectID: ID
+  name1: String
+  name2: String
+  surname: String
+  email: String
+  phone: String
+  website: String
+  company: String
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
 type User {
+  ObjectID: ID
   username: String!
   password: String!
   email: String!
@@ -29,11 +43,12 @@ type User {
 
 type Mutation {
   login(username: String!, password: String!): AuthPayload
-  createContact(name1: String!, name2: String, surname: String, email: String, phone: String, website: String): Contact
+  createContact(name1: String!, name2: String, surname: String, email: String, phone: String, website: String, company: String): Contact
 }
 
 type Query {
-  getContact(): Contact
-  getContacts(filter: Contact): [Contact]
+  getContact(filter: Filter): Contact
+  getContacts(filter: Filter): [Contact]
+  searchContacts(query: String!): [Contact]
 }
 
