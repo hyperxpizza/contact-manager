@@ -28,8 +28,16 @@ func main() {
 
 	mongoUser := os.Getenv("MONGO_INITDB_ROOT_USERNAME")
 	mongoPassword := os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
+	mongoHost := os.Getenv("MONGO_HOST")
+	mongoAuthSource := os.Getenv("MONGO_AUTH_SOURCE")
+	mongoPort := os.Getenv("MONGO_PORT")
 
-	database.ConnectToDB()
+	port, err := strconv.Atoi(mongoPort)
+	if err != nil {
+		log.Printf("[-] Can not convert mongoPort to integer: %v\n", err)
+	}
+
+	database.ConnectToDB(mongoUser, mongoPassword, mongoAuthSource, mongoHost, port)
 
 	router.Use(cors.Default())
 	router.POST("/query", graphqlHandler())
