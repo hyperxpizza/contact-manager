@@ -8,10 +8,60 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/goware/emailx"
 	"github.com/hyperxpizza/contact-manager/server/database"
 	"github.com/hyperxpizza/contact-manager/server/graph/generated"
 	"github.com/hyperxpizza/contact-manager/server/graph/model"
+	"golang.org/x/crypto/bcrypt"
 )
+
+func (r *mutationResolver) CreateUser(ctx context.Context, username string, email string, password1 string, password2 string) (*model.User, error) {
+	//validate username and email
+	err := emailx.Validate(email)
+	if err != nil {
+		return nil, err
+	}
+	//check if username and email are already taken
+	err = database.CheckIfUsernameTaken(username)
+	if err != nil {
+		return nil, err
+	}
+
+	err = database.CheckIfEmailTaken(email)
+	if err != nil {
+		return nil, err
+	}
+
+	//check if passwords are matching
+	if password1 != password2 {
+		return nil, fmt.Errorf("Passwords do not match")
+	}
+
+	//hash password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password1), 10)
+	if err != nil {
+		return nil, err
+	}
+
+	user := model.User{
+		Username:  username,
+		Password:  string(hashedPassword),
+		Email:     email,
+		IsAdmin:   false,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	id, err := database.InsertUser(user)
+	if err != nil {
+		return nil, err
+	}
+
+	user.ObjectID = &id
+
+	return &user, nil
+
+}
 
 func (r *mutationResolver) Login(ctx context.Context, username string, password string) (*model.AuthPayload, error) {
 	payload := model.AuthPayload{
@@ -54,6 +104,15 @@ func (r *queryResolver) GetContact(ctx context.Context, filter *model.Filter) (*
 }
 
 func (r *queryResolver) GetContacts(ctx context.Context, filter *model.Filter) ([]*model.Contact, error) {
+	contacts, err := database.GetContacts(filter)
+	if err != nil {
+		return nil, err
+	}
+
+	return contacts, nil
+}
+
+func (r *queryResolver) CountContacts(ctx context.Context, filter *model.Filter) (int, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 

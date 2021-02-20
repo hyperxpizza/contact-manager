@@ -42,6 +42,7 @@ type User {
 }
 
 type Mutation {
+  createUser(username: String!, email: String!, password1: String!, password2: String!): User
   login(username: String!, password: String!): AuthPayload
   createContact(name1: String!, name2: String, surname: String, email: String, phone: String, website: String, company: String): Contact
 }
@@ -49,6 +50,7 @@ type Mutation {
 type Query {
   getContact(filter: Filter): Contact
   getContacts(filter: Filter): [Contact]
+  countContacts(filter: Filter): Int!
   searchContacts(query: String!): [Contact]
 }
 

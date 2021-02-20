@@ -8,6 +8,7 @@ import (
 	"errors"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -64,10 +65,12 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		CreateContact func(childComplexity int, name1 string, name2 *string, surname *string, email *string, phone *string, website *string, company *string) int
+		CreateUser    func(childComplexity int, username string, email string, password1 string, password2 string) int
 		Login         func(childComplexity int, username string, password string) int
 	}
 
 	Query struct {
+		CountContacts  func(childComplexity int, filter *model.Filter) int
 		GetContact     func(childComplexity int, filter *model.Filter) int
 		GetContacts    func(childComplexity int, filter *model.Filter) int
 		SearchContacts func(childComplexity int, query string) int
@@ -85,12 +88,14 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
+	CreateUser(ctx context.Context, username string, email string, password1 string, password2 string) (*model.User, error)
 	Login(ctx context.Context, username string, password string) (*model.AuthPayload, error)
 	CreateContact(ctx context.Context, name1 string, name2 *string, surname *string, email *string, phone *string, website *string, company *string) (*model.Contact, error)
 }
 type QueryResolver interface {
 	GetContact(ctx context.Context, filter *model.Filter) (*model.Contact, error)
 	GetContacts(ctx context.Context, filter *model.Filter) ([]*model.Contact, error)
+	CountContacts(ctx context.Context, filter *model.Filter) (int, error)
 	SearchContacts(ctx context.Context, query string) ([]*model.Contact, error)
 }
 
@@ -205,6 +210,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateContact(childComplexity, args["name1"].(string), args["name2"].(*string), args["surname"].(*string), args["email"].(*string), args["phone"].(*string), args["website"].(*string), args["company"].(*string)), true
 
+	case "Mutation.createUser":
+		if e.complexity.Mutation.CreateUser == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateUser(childComplexity, args["username"].(string), args["email"].(string), args["password1"].(string), args["password2"].(string)), true
+
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
 			break
@@ -216,6 +233,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.Login(childComplexity, args["username"].(string), args["password"].(string)), true
+
+	case "Query.countContacts":
+		if e.complexity.Query.CountContacts == nil {
+			break
+		}
+
+		args, err := ec.field_Query_countContacts_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.CountContacts(childComplexity, args["filter"].(*model.Filter)), true
 
 	case "Query.getContact":
 		if e.complexity.Query.GetContact == nil {
@@ -410,6 +439,7 @@ type User {
 }
 
 type Mutation {
+  createUser(username: String!, email: String!, password1: String!, password2: String!): User
   login(username: String!, password: String!): AuthPayload
   createContact(name1: String!, name2: String, surname: String, email: String, phone: String, website: String, company: String): Contact
 }
@@ -417,6 +447,7 @@ type Mutation {
 type Query {
   getContact(filter: Filter): Contact
   getContacts(filter: Filter): [Contact]
+  countContacts(filter: Filter): Int!
   searchContacts(query: String!): [Contact]
 }
 
@@ -497,6 +528,48 @@ func (ec *executionContext) field_Mutation_createContact_args(ctx context.Contex
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["username"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["username"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["email"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["email"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["password1"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password1"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["password1"] = arg2
+	var arg3 string
+	if tmp, ok := rawArgs["password2"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password2"))
+		arg3, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["password2"] = arg3
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -533,6 +606,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_countContacts_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.Filter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg0, err = ec.unmarshalOFilter2ᚖgithubᚗcomᚋhyperxpizzaᚋcontactᚑmanagerᚋserverᚋgraphᚋmodelᚐFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg0
 	return args, nil
 }
 
@@ -1018,6 +1106,45 @@ func (ec *executionContext) _Contact_updatedAt(ctx context.Context, field graphq
 	return ec.marshalNTimestamp2timeᚐTime(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createUser_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateUser(rctx, args["username"].(string), args["email"].(string), args["password1"].(string), args["password2"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚖgithubᚗcomᚋhyperxpizzaᚋcontactᚑmanagerᚋserverᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1172,6 +1299,48 @@ func (ec *executionContext) _Query_getContacts(ctx context.Context, field graphq
 	res := resTmp.([]*model.Contact)
 	fc.Result = res
 	return ec.marshalOContact2ᚕᚖgithubᚗcomᚋhyperxpizzaᚋcontactᚑmanagerᚋserverᚋgraphᚋmodelᚐContact(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_countContacts(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_countContacts_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().CountContacts(rctx, args["filter"].(*model.Filter))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_searchContacts(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2811,6 +2980,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
+		case "createUser":
+			out.Values[i] = ec._Mutation_createUser(ctx, field)
 		case "login":
 			out.Values[i] = ec._Mutation_login(ctx, field)
 		case "createContact":
@@ -2861,6 +3032,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getContacts(ctx, field)
+				return res
+			})
+		case "countContacts":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_countContacts(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			})
 		case "searchContacts":
@@ -3195,6 +3380,21 @@ func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interf
 
 func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.SelectionSet, v bool) graphql.Marshaler {
 	res := graphql.MarshalBoolean(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3610,6 +3810,13 @@ func (ec *executionContext) marshalOTimestamp2ᚖtimeᚐTime(ctx context.Context
 		return graphql.Null
 	}
 	return custom.MarshalTimestamp(*v)
+}
+
+func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋhyperxpizzaᚋcontactᚑmanagerᚋserverᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._User(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

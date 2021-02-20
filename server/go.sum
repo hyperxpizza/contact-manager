@@ -69,6 +69,8 @@ github.com/gorilla/context v0.0.0-20160226214623-1ea25387ff6f/go.mod h1:kBGZzfjB
 github.com/gorilla/mux v1.6.1/go.mod h1:1lud6UwP+6orDFRuTfBEV8e9/aOM/c4fVVCaMa2zaAs=
 github.com/gorilla/websocket v1.4.2 h1:+/TMaTYc4QFitKJxsQ7Yye35DkWvkdLcvGKqM+x0Ufc=
 github.com/gorilla/websocket v1.4.2/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
+github.com/goware/emailx v0.2.0 h1:iFsi6iJiUvXMSaBqpaHwdBasJ+VgH3x/6mQau6VTuWQ=
+github.com/goware/emailx v0.2.0/go.mod h1:3QlOsDnxq9di9qE7ZbiHpFHeDADkem62XZ1MS1xhACY=
 github.com/hashicorp/golang-lru v0.5.0 h1:CL2msUPvZTLb5O648aiLNJw3hnBxN2+1Jq8rCOH9wdo=
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hyperxpizza/contact-manager v0.0.0-20200302093714-3ad7fac9d32e h1:mjtq1kerx6X3AqdQ4MjIdr2tCvrohE3Se7VVA0eSOAw=

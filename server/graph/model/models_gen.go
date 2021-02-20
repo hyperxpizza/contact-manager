@@ -42,7 +42,7 @@ type User struct {
 	Username  string    `json:"username" bson:"username,omitempty"`
 	Password  string    `json:"password" bson:"password,omitempty"`
 	Email     string    `json:"email" bson:"email,omitempty"`
-	IsAdmin   bool      `json:"isAdmin" bson:"isAdmin,omitempty"`
+	IsAdmin   bool      `json:"isAdmin" bson:"isAdmin"`
 	CreatedAt time.Time `json:"createdAt" bson:"createdat,omitempty"`
 	UpdatedAt time.Time `json:"updatedAt" bson:"updatedat,omitempty"`
 }
