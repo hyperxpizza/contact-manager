@@ -1,6 +1,13 @@
 import {useState} from 'react';
 import Navbar from "./components/Navbar/Navbar";
 import Sidebar from "./components/Sidebar/Sidebar";
+import Main from './components/Main/Main';
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+
+const client = new ApolloClient({
+  uri: process.env.GQL_ENDPOINT,
+  cache: new InMemoryCache()
+});
 
 const App = () => {
 
@@ -14,11 +21,13 @@ const App = () => {
   }
 
   return(
-    <div className="container">
-      <Navbar sidebarOpen={sidebarOpen} openSidebar={openSidebar}/>
-      <h1>React Dashboard</h1>
-      <Sidebar sidebarOpen={sidebarOpen} closeSidebar={closeSidebar}/>
-    </div>
+    <ApolloProvider client={client}>
+      <div className="container">
+        <Navbar sidebarOpen={sidebarOpen} openSidebar={openSidebar}/>
+          <Main />
+        <Sidebar sidebarOpen={sidebarOpen} closeSidebar={closeSidebar}/>
+      </div>
+    </ApolloProvider>
   );
 }
 
