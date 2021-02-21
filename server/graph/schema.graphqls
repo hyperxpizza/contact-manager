@@ -41,6 +41,10 @@ type User {
   updatedAt: Timestamp!
 }
 
+type CountResponse {
+  count: Int!
+}
+
 type Mutation {
   createUser(username: String!, email: String!, password1: String!, password2: String!): User
   login(username: String!, password: String!): AuthPayload
@@ -50,7 +54,7 @@ type Mutation {
 type Query {
   getContact(filter: Filter): Contact
   getContacts(filter: Filter): [Contact]
-  countContacts(filter: Filter): Int!
+  countContacts(filter: Filter): CountResponse
   searchContacts(query: String!): [Contact]
 }
 

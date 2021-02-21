@@ -8,7 +8,6 @@ import (
 	"errors"
 	"strconv"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -63,6 +62,10 @@ type ComplexityRoot struct {
 		Website   func(childComplexity int) int
 	}
 
+	CountResponse struct {
+		Count func(childComplexity int) int
+	}
+
 	Mutation struct {
 		CreateContact func(childComplexity int, name1 string, name2 *string, surname *string, email *string, phone *string, website *string, company *string) int
 		CreateUser    func(childComplexity int, username string, email string, password1 string, password2 string) int
@@ -95,7 +98,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	GetContact(ctx context.Context, filter *model.Filter) (*model.Contact, error)
 	GetContacts(ctx context.Context, filter *model.Filter) ([]*model.Contact, error)
-	CountContacts(ctx context.Context, filter *model.Filter) (int, error)
+	CountContacts(ctx context.Context, filter *model.Filter) (*model.CountResponse, error)
 	SearchContacts(ctx context.Context, query string) ([]*model.Contact, error)
 }
 
@@ -197,6 +200,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Contact.Website(childComplexity), true
+
+	case "CountResponse.count":
+		if e.complexity.CountResponse.Count == nil {
+			break
+		}
+
+		return e.complexity.CountResponse.Count(childComplexity), true
 
 	case "Mutation.createContact":
 		if e.complexity.Mutation.CreateContact == nil {
@@ -438,6 +448,10 @@ type User {
   updatedAt: Timestamp!
 }
 
+type CountResponse {
+  count: Int!
+}
+
 type Mutation {
   createUser(username: String!, email: String!, password1: String!, password2: String!): User
   login(username: String!, password: String!): AuthPayload
@@ -447,7 +461,7 @@ type Mutation {
 type Query {
   getContact(filter: Filter): Contact
   getContacts(filter: Filter): [Contact]
-  countContacts(filter: Filter): Int!
+  countContacts(filter: Filter): CountResponse
   searchContacts(query: String!): [Contact]
 }
 
@@ -1106,6 +1120,41 @@ func (ec *executionContext) _Contact_updatedAt(ctx context.Context, field graphq
 	return ec.marshalNTimestamp2timeᚐTime(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _CountResponse_count(ctx context.Context, field graphql.CollectedField, obj *model.CountResponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "CountResponse",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Count, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1333,14 +1382,11 @@ func (ec *executionContext) _Query_countContacts(ctx context.Context, field grap
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(*model.CountResponse)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalOCountResponse2ᚖgithubᚗcomᚋhyperxpizzaᚋcontactᚑmanagerᚋserverᚋgraphᚋmodelᚐCountResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_searchContacts(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2965,6 +3011,33 @@ func (ec *executionContext) _Contact(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
+var countResponseImplementors = []string{"CountResponse"}
+
+func (ec *executionContext) _CountResponse(ctx context.Context, sel ast.SelectionSet, obj *model.CountResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, countResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CountResponse")
+		case "count":
+			out.Values[i] = ec._CountResponse_count(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -3043,9 +3116,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_countContacts(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
 				return res
 			})
 		case "searchContacts":
@@ -3748,6 +3818,13 @@ func (ec *executionContext) marshalOContact2ᚖgithubᚗcomᚋhyperxpizzaᚋcont
 		return graphql.Null
 	}
 	return ec._Contact(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOCountResponse2ᚖgithubᚗcomᚋhyperxpizzaᚋcontactᚑmanagerᚋserverᚋgraphᚋmodelᚐCountResponse(ctx context.Context, sel ast.SelectionSet, v *model.CountResponse) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CountResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOFilter2ᚖgithubᚗcomᚋhyperxpizzaᚋcontactᚑmanagerᚋserverᚋgraphᚋmodelᚐFilter(ctx context.Context, v interface{}) (*model.Filter, error) {

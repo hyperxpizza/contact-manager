@@ -11,6 +11,10 @@ type AuthPayload struct {
 	User  *User  `json:"user"`
 }
 
+type CountResponse struct {
+	Count int `json:"count"`
+}
+
 type Contact struct {
 	ObjectID  *string   `json:"ObjectID" bson:"_id,omitempty"`
 	Name1     string    `json:"name1" bson:"name1,omitempty"`

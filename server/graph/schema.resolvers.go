@@ -60,7 +60,6 @@ func (r *mutationResolver) CreateUser(ctx context.Context, username string, emai
 	user.ObjectID = &id
 
 	return &user, nil
-
 }
 
 func (r *mutationResolver) Login(ctx context.Context, username string, password string) (*model.AuthPayload, error) {
@@ -112,8 +111,17 @@ func (r *queryResolver) GetContacts(ctx context.Context, filter *model.Filter) (
 	return contacts, nil
 }
 
-func (r *queryResolver) CountContacts(ctx context.Context, filter *model.Filter) (int, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *queryResolver) CountContacts(ctx context.Context, filter *model.Filter) (*model.CountResponse, error) {
+	count, err := database.CountContacts(filter)
+	if err != nil {
+		return nil, err
+	}
+
+	response := model.CountResponse{
+		Count: count,
+	}
+
+	return &response, nil
 }
 
 func (r *queryResolver) SearchContacts(ctx context.Context, query string) ([]*model.Contact, error) {

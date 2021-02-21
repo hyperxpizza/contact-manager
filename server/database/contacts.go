@@ -57,3 +57,13 @@ func GetContacts(filter *model.Filter) ([]*model.Contact, error) {
 
 	return contacts, nil
 }
+
+func CountContacts(filter *model.Filter) (int, error) {
+	count, err := database.Collection("contacts").CountDocuments(context.Background(), filter)
+	if err != nil {
+		log.Printf("CountContacts failed: %v\n", err)
+		return 0, err
+	}
+
+	return int(count), nil
+}
