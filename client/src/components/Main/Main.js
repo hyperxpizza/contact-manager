@@ -1,6 +1,26 @@
 import {useState} from 'react';
 import "./Main.css";
+import { gql, useQuery } from '@apollo/client';
 import NumberOfContacts from '../Cards/NumberOfContacts/NumberOfContacts';
+import NewContactCard from '../Cards/NewContactCard/NewContactCard';
+import Contacts from '../Contacts/Contacts';
+
+const GET_CONTACTS = gql`
+  query getContacts{
+    getContacts(filter:{}){
+      ObjectID
+      name1
+      name2
+      surname
+      email
+      phone
+      website
+      company
+      createdAt
+      updatedAt
+    }
+  }
+`;
 
 const Main = () => {
     
@@ -10,6 +30,7 @@ const Main = () => {
         {/* <!-- MAIN CARDS STARTS HERE --> */}
         <div className="main__cards">
           <NumberOfContacts />
+          <NewContactCard />
         </div>
         {/* <!-- MAIN CARDS ENDS HERE --> */}
 
@@ -18,11 +39,11 @@ const Main = () => {
           <div className="charts__left">
             <div className="charts__left__title">
               <div>
-                <h1>Daily Reports</h1>
-                <p>Cupertino, California, USA</p>
+                
               </div>
-              <i className="fa fa-usd" aria-hidden="true"></i>
+              <i className="fa fa-user-o fa-2x text-lightblue" aria-hidden="true"></i>
             </div>
+            <Contacts />
           </div>
 
           <div className="charts__right">
