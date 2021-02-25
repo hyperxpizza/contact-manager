@@ -3,6 +3,8 @@ import "./Main.css";
 import { gql, useQuery } from '@apollo/client';
 import NumberOfContacts from '../Cards/NumberOfContacts/NumberOfContacts';
 import NewContactCard from '../Cards/NewContactCard/NewContactCard';
+import ExportCard from '../Cards/ExportCard/ExportCard';
+import ImportCard from '../Cards/ImportCard/ImportCard';
 import Contacts from '../Contacts/Contacts';
 
 const GET_CONTACTS = gql`
@@ -31,6 +33,8 @@ const Main = () => {
         <div className="main__cards">
           <NumberOfContacts />
           <NewContactCard />
+          <ExportCard />
+          <ImportCard />
         </div>
         {/* <!-- MAIN CARDS ENDS HERE --> */}
 
