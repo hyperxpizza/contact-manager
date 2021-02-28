@@ -13,6 +13,7 @@ import (
 	database "github.com/hyperxpizza/contact-manager/server/database"
 	"github.com/hyperxpizza/contact-manager/server/graph"
 	"github.com/hyperxpizza/contact-manager/server/graph/generated"
+	"github.com/hyperxpizza/contact-manager/server/handlers"
 	"github.com/joho/godotenv"
 )
 
@@ -42,6 +43,7 @@ func main() {
 	router.Use(cors.Default())
 	router.POST("/query", graphqlHandler())
 	router.GET("/", playgroundHandler())
+	router.GET("/download/:bucket/:filename", handlers.DownloadFile)
 
 	log.Println("[*] Server running at: " + strconv.FormatInt(defaultPort, 10))
 	router.Run(fmt.Sprintf(":%d", defaultPort))
