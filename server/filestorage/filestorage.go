@@ -1,4 +1,4 @@
-package filestroage
+package filestorage
 
 import (
 	"fmt"
@@ -9,6 +9,7 @@ import (
 	minio "github.com/minio/minio-go"
 )
 
+//Filestorage is a struct for interacting with files
 type Filestorage struct {
 	Client *minio.Client
 }
@@ -17,7 +18,7 @@ type Filestorage struct {
 func NewStorage() (*Filestorage, error) {
 	err := godotenv.Load("./../.minio.env")
 	if err != nil {
-		log.Println("loadig .minio.env failed: %v\n", err)
+		log.Printf("loadig .minio.env failed: %v\n", err)
 		return nil, err
 	}
 
@@ -28,9 +29,20 @@ func NewStorage() (*Filestorage, error) {
 
 	minioClient, err := minio.New(fmt.Sprintf("%s:%s'", endpoint, port), accessKey, secretKey, true)
 	if err != nil {
-		log.Println("minio.New failed: %v\n", err)
+		log.Printf("minio.New failed: %v\n", err)
 		return nil, err
 	}
 
 	return &Filestorage{Client: minioClient}, nil
+}
+
+//PutFile stores file in bucket
+func (f *Filestorage) PutFile(bucketName string) error {
+
+	return nil
+}
+
+//CreateBucket creates a new bucket
+func (f *Filestorage) CreateBucket(name string) error {
+
 }

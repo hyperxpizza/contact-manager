@@ -6,6 +6,12 @@ import (
 	"time"
 )
 
+type ExportResponse struct {
+	URL     *string `json:"url"`
+	Message string  `json:"message"`
+	Success bool    `json:"success"`
+}
+
 type AuthPayload struct {
 	Token string `json:"token"`
 	User  *User  `json:"user"`

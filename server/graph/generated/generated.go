@@ -66,6 +66,12 @@ type ComplexityRoot struct {
 		Count func(childComplexity int) int
 	}
 
+	ExportResponse struct {
+		Message func(childComplexity int) int
+		Success func(childComplexity int) int
+		URL     func(childComplexity int) int
+	}
+
 	Mutation struct {
 		CreateContact func(childComplexity int, name1 string, name2 *string, surname *string, email *string, phone *string, website *string, company *string) int
 		CreateUser    func(childComplexity int, username string, email string, password1 string, password2 string) int
@@ -74,6 +80,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		CountContacts  func(childComplexity int, filter *model.Filter) int
+		ExportContacts func(childComplexity int, exportType string) int
 		GetContact     func(childComplexity int, filter *model.Filter) int
 		GetContacts    func(childComplexity int, filter *model.Filter) int
 		SearchContacts func(childComplexity int, query string) int
@@ -100,6 +107,7 @@ type QueryResolver interface {
 	GetContacts(ctx context.Context, filter *model.Filter) ([]*model.Contact, error)
 	CountContacts(ctx context.Context, filter *model.Filter) (*model.CountResponse, error)
 	SearchContacts(ctx context.Context, query string) ([]*model.Contact, error)
+	ExportContacts(ctx context.Context, exportType string) (*model.ExportResponse, error)
 }
 
 type executableSchema struct {
@@ -208,6 +216,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CountResponse.Count(childComplexity), true
 
+	case "ExportResponse.message":
+		if e.complexity.ExportResponse.Message == nil {
+			break
+		}
+
+		return e.complexity.ExportResponse.Message(childComplexity), true
+
+	case "ExportResponse.success":
+		if e.complexity.ExportResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.ExportResponse.Success(childComplexity), true
+
+	case "ExportResponse.url":
+		if e.complexity.ExportResponse.URL == nil {
+			break
+		}
+
+		return e.complexity.ExportResponse.URL(childComplexity), true
+
 	case "Mutation.createContact":
 		if e.complexity.Mutation.CreateContact == nil {
 			break
@@ -255,6 +284,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.CountContacts(childComplexity, args["filter"].(*model.Filter)), true
+
+	case "Query.exportContacts":
+		if e.complexity.Query.ExportContacts == nil {
+			break
+		}
+
+		args, err := ec.field_Query_exportContacts_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ExportContacts(childComplexity, args["exportType"].(string)), true
 
 	case "Query.getContact":
 		if e.complexity.Query.GetContact == nil {
@@ -452,6 +493,12 @@ type CountResponse {
   count: Int!
 }
 
+type ExportResponse {
+  url: String
+  message: String!
+  success: Boolean!
+}
+
 type Mutation {
   createUser(username: String!, email: String!, password1: String!, password2: String!): User
   login(username: String!, password: String!): AuthPayload
@@ -463,6 +510,7 @@ type Query {
   getContacts(filter: Filter): [Contact]
   countContacts(filter: Filter): CountResponse
   searchContacts(query: String!): [Contact]
+  exportContacts(exportType: String!): ExportResponse
 }
 
 `, BuiltIn: false},
@@ -635,6 +683,21 @@ func (ec *executionContext) field_Query_countContacts_args(ctx context.Context, 
 		}
 	}
 	args["filter"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_exportContacts_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["exportType"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exportType"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["exportType"] = arg0
 	return args, nil
 }
 
@@ -1155,6 +1218,108 @@ func (ec *executionContext) _CountResponse_count(ctx context.Context, field grap
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _ExportResponse_url(ctx context.Context, field graphql.CollectedField, obj *model.ExportResponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExportResponse",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ExportResponse_message(ctx context.Context, field graphql.CollectedField, obj *model.ExportResponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExportResponse",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ExportResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.ExportResponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExportResponse",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1426,6 +1591,45 @@ func (ec *executionContext) _Query_searchContacts(ctx context.Context, field gra
 	res := resTmp.([]*model.Contact)
 	fc.Result = res
 	return ec.marshalOContact2ᚕᚖgithubᚗcomᚋhyperxpizzaᚋcontactᚑmanagerᚋserverᚋgraphᚋmodelᚐContact(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_exportContacts(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_exportContacts_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ExportContacts(rctx, args["exportType"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.ExportResponse)
+	fc.Result = res
+	return ec.marshalOExportResponse2ᚖgithubᚗcomᚋhyperxpizzaᚋcontactᚑmanagerᚋserverᚋgraphᚋmodelᚐExportResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3038,6 +3242,40 @@ func (ec *executionContext) _CountResponse(ctx context.Context, sel ast.Selectio
 	return out
 }
 
+var exportResponseImplementors = []string{"ExportResponse"}
+
+func (ec *executionContext) _ExportResponse(ctx context.Context, sel ast.SelectionSet, obj *model.ExportResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, exportResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ExportResponse")
+		case "url":
+			out.Values[i] = ec._ExportResponse_url(ctx, field, obj)
+		case "message":
+			out.Values[i] = ec._ExportResponse_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "success":
+			out.Values[i] = ec._ExportResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -3127,6 +3365,17 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_searchContacts(ctx, field)
+				return res
+			})
+		case "exportContacts":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_exportContacts(ctx, field)
 				return res
 			})
 		case "__type":
@@ -3825,6 +4074,13 @@ func (ec *executionContext) marshalOCountResponse2ᚖgithubᚗcomᚋhyperxpizza�
 		return graphql.Null
 	}
 	return ec._CountResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOExportResponse2ᚖgithubᚗcomᚋhyperxpizzaᚋcontactᚑmanagerᚋserverᚋgraphᚋmodelᚐExportResponse(ctx context.Context, sel ast.SelectionSet, v *model.ExportResponse) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ExportResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOFilter2ᚖgithubᚗcomᚋhyperxpizzaᚋcontactᚑmanagerᚋserverᚋgraphᚋmodelᚐFilter(ctx context.Context, v interface{}) (*model.Filter, error) {

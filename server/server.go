@@ -43,7 +43,7 @@ func main() {
 	router.Use(cors.Default())
 	router.POST("/query", graphqlHandler())
 	router.GET("/", playgroundHandler())
-	router.GET("/download/:bucket/:filename", handlers.DownloadFile)
+	router.GET("/download/:bucket/*filename", handlers.DownloadFile)
 
 	log.Println("[*] Server running at: " + strconv.FormatInt(defaultPort, 10))
 	router.Run(fmt.Sprintf(":%d", defaultPort))
